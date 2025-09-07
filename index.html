@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 Journey of the Forgotten Island 🌊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            max-width: 900px;
+            width: 90%;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 2px solid #4a90e2;
+        }
+
+        .game-header {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #4a90e2;
+        }
+
+        .game-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .game-subtitle {
+            font-size: 1.2em;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .game-screen {
+            height: 500px;
+            padding: 20px;
+            overflow-y: auto;
+            background: #000000;
+            border-bottom: 2px solid #4a90e2;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .game-input-area {
+            background: #1a1a1a;
+            padding: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #4a90e2;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #gameInput {
+            flex: 1;
+            background: #2a2a2a;
+            border: 2px solid #4a90e2;
+            border-radius: 5px;
+            padding: 10px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #gameInput:focus {
+            border-color: #feca57;
+            box-shadow: 0 0 10px rgba(254, 202, 87, 0.3);
+        }
+
+        .send-button {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .game-output {
+            color: #ffffff;
+        }
+
+        .room-title {
+            color: #feca57;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            text-decoration: underline;
+        }
+
+        .room-description {
+            color: #a8e6cf;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .items-list {
+            color: #ff8b94;
+            margin: 10px 0;
+        }
+
+        .exits-list {
+            color: #87ceeb;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .inventory-list {
+            color: #dda0dd;
+            margin: 10px 0;
+        }
+
+        .status-info {
+            color: #90ee90;
+            margin: 10px 0;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .success-message {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .help-commands {
+            color: #ffd93d;
+            background: rgba(255, 217, 61, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            background: #1a1a1a;
+            padding: 10px 20px;
+            border-top: 1px solid #333;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            color: #4a90e2;
+        }
+
+        .victory-message {
+            color: #ffd700;
+            font-size: 1.5em;
+            text-align: center;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2em;
+            }
+            .game-screen {
+                height: 400px;
+            }
+            .input-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            #gameInput {
+                width: 100%;
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            color: #4a90e2;
+            opacity: 0.7;
+            font-size: 12px;
+        }
+
+        .typing-indicator {
+            color: #4a90e2;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-title">🌊 Journey of the Forgotten Island 🌊</div>
+            <div class="game-subtitle">A Text-Based Adventure Game</div>
+        </div>
+        
+        <div class="game-screen" id="gameScreen">
+            <div class="game-output" id="gameOutput">
+                <div class="room-description">
+                    Welcome to Journey of the Forgotten Island!<br><br>
+                    You wake up on a sandy beach, waves gently lapping at your feet.<br>
+                    The last thing you remember is your ship being caught in a terrible storm.<br>
+                    Now you find yourself on an unknown island, with no sign of your crew.<br>
+                    The sun is setting, and you need to find shelter and a way off this island.<br><br>
+                    <span class="help-commands">Type 'help' to see available commands or 'start' to begin your adventure!</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat-item">Health: <span id="healthStat">100/100</span></div>
+            <div class="stat-item">Score: <span id="scoreStat">0</span></div>
+            <div class="stat-item">Location: <span id="locationStat">Unknown</span></div>
+        </div>
+        
+        <div class="game-input-area">
+            <div class="input-container">
+                <span class="prompt">></span>
+                <input type="text" id="gameInput" placeholder="Enter your command here..." autocomplete="off">
+                <button class="send-button" onclick="processCommand()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            currentRoom: 0,
+            playerHealth: 100,
+            maxHealth: 100,
+            playerScore: 0,
+            inventory: [],
+            maxInventory: 10,
+            gameFlags: {},
+            gameStarted: false,
+            playerName: "Adventurer"
+        };
+
+        // Game Data
+        const rooms = [
+            {
+                id: 0,
+                name: "Sandy Beach",
+                description: "You are on a pristine sandy beach. The ocean stretches endlessly to the east.",
+                longDescription: "The warm sand feels good beneath your feet. Waves gently lap at the shore, and you can hear seabirds calling in the distance. To the west, a dense jungle beckons with mysterious shadows. Palm trees sway in the tropical breeze.",
+                exits: { "west": 1, "north": 2 },
+                items: ["seashell", "driftwood"],
+                visited: false
+            },
+            {
+                id: 1,
+                name: "Jungle Path",
+                description: "A narrow path winds through dense tropical vegetation.",
+                longDescription: "Thick vines hang from towering trees, creating a green canopy overhead. The air is humid and filled with the sounds of exotic birds and insects. Strange flowers bloom in vibrant colors along the path.",
+                exits: { "east": 0, "north": 3, "west": 4 },
+                items: ["vine"],
+                visited: false
+            },
+            {
+                id: 2,
+                name: "Rocky Outcrop",
+                description: "You stand on a high rocky formation overlooking the island.",
+                longDescription: "From this vantage point, you can see the entire island laid out before you. The beach stretches to the south, jungle covers most of the interior, and you can make out what looks like ancient ruins to the northwest. A cave entrance is visible in the rocks below.",
+                exits: { "south": 0, "down": 5 },
+                items: ["binoculars"],
+                visited: false
+            },
+            {
+                id: 3,
+                name: "Dense Jungle",
+                description: "The jungle grows thicker here, making progress difficult.",
+                longDescription: "Massive trees tower overhead, their branches intertwined to form an almost impenetrable canopy. Shafts of sunlight pierce through occasionally, illuminating patches of colorful orchids and strange fungi.",
+                exits: { "south": 1, "west": 6 },
+                items: ["machete"],
+                visited: false
+            },
+            {
+                id: 4,
+                name: "Ancient Ruins Entrance",
+                description: "You stand before the crumbling entrance to ancient stone ruins.",
+                longDescription: "Weathered stone blocks covered in mysterious carvings form an archway. Vines and moss have claimed much of the structure, but you can still make out intricate patterns etched into the stone. The entrance leads north into darkness.",
+                exits: { "east": 1, "north": 7 },
+                items: ["rusty key"],
+                visited: false
+            },
+            {
+                id: 5,
+                name: "Hidden Cave",
+                description: "You are in a damp cave hidden within the rocky outcrop.",
+                longDescription: "The cave is cool and damp, with water dripping steadily from stalactites above. Strange phosphorescent moss provides a faint, eerie glow. Deep shadows conceal the far reaches of the cave.",
+                exits: { "up": 2 },
+                items: ["torch", "crystals"],
+                visited: false
+            },
+            {
+                id: 6,
+                name: "Mysterious Grove",
+                description: "You enter a circular clearing surrounded by ancient trees.",
+                longDescription: "This grove feels different from the rest of the jungle. The trees here are older and more gnarled, their branches forming almost perfect circle overhead. In the center stands a weathered stone altar covered in strange symbols.",
+                exits: { "east": 3, "north": 8 },
+                items: ["herbs", "stone tablet"],
+                visited: false
+            },
+            {
+                id: 7,
+                name: "Temple Antechamber",
+                description: "You are in a stone chamber filled with ancient artifacts.",
+                longDescription: "This rectangular chamber is lined with stone shelves holding mysterious objects. Faded murals on the walls depict scenes of ancient ceremonies. A heavy stone door to the north is sealed with an intricate lock mechanism.",
+                exits: { "south": 4, "north": 8 },
+                items: ["temple key", "ancient scroll", "healing potion"],
+                visited: false
+            },
+            {
+                id: 8,
+                name: "Inner Temple",
+                description: "You stand in the heart of the ancient temple.",
+                longDescription: "This grand chamber rises high above you, supported by carved stone pillars. Shafts of light filter down from openings in the ceiling, illuminating intricate carvings that tell the story of the island's ancient civilization. A passage to the east leads deeper into the temple complex.",
+                exits: { "south": 7, "east": 9, "west": 6 },
+                items: ["golden idol"],
+                visited: false,
+                locked: true,
+                unlockKey: "temple key"
+            },
+            {
+                id: 9,
+                name: "Treasure Chamber",
+                description: "You have discovered the legendary treasure chamber!",
+                longDescription: "This magnificent chamber is filled with golden artifacts and precious gems. Ancient chests line the walls, overflowing with treasure accumulated over centuries. At the far end, a hidden passage leads to a dock where a small boat waits - your escape route off the island!",
+                exits: { "west": 8 },
+                items: ["ancient treasure", "treasure map", "emergency supplies"],
+                visited: false
+            }
+        ];
+
+        const items = {
+            "seashell": { name: "seashell", description: "A beautiful conch shell washed up by the waves. It still echoes with the sound of the ocean.", canTake: true, canUse: false, value: 5, type: "treasure" },
+            "driftwood": { name: "driftwood", description: "A piece of weathered wood from your shipwreck. It might be useful for something.", canTake: true, canUse: true, value: 10, type: "tool" },
+            "vine": { name: "vine", description: "A strong, flexible vine that could be useful for climbing or binding things together.", canTake: true, canUse: true, value: 15, type: "tool" },
+            "binoculars": { name: "binoculars", description: "An old pair of binoculars, probably from another shipwreck survivor. Still functional.", canTake: true, canUse: true, value: 25, type: "tool" },
+            "torch": { name: "torch", description: "A makeshift torch that provides light in dark places. The flame flickers but burns steadily.", canTake: true, canUse: true, value: 30, type: "tool" },
+            "crystals": { name: "crystals", description: "Beautiful luminescent crystals that glow with an inner light.", canTake: true, canUse: false, value: 50, type: "treasure" },
+            "machete": { name: "machete", description: "A sharp machete perfect for cutting through jungle vegetation and defending yourself.", canTake: true, canUse: true, value: 40, type: "weapon", damage: 15 },
+            "herbs": { name: "herbs", description: "Medicinal herbs that can restore health when consumed.", canTake: true, canUse: true, value: 25, type: "consumable", healAmount: 25 },
+            "stone tablet": { name: "stone tablet", description: "An ancient stone tablet covered in mysterious hieroglyphs. It might contain important information.", canTake: true, canUse: false, value: 35, type: "tool" },
+            "rusty key": { name: "rusty key", description: "An old, rusty key found among the ruins. It looks like it might open something important.", canTake: true, canUse: true, value: 20, type: "key", unlocks: "chest" },
+            "temple key": { name: "temple key", description: "An ornate golden key with intricate engravings. It bears the same symbols as the temple walls.", canTake: true, canUse: true, value: 75, type: "key", unlocks: "inner temple" },
+            "ancient scroll": { name: "ancient scroll", description: "An ancient scroll with faded text. You can barely make out warnings about temple guardians.", canTake: true, canUse: false, value: 30, type: "tool" },
+            "healing potion": { name: "healing potion", description: "A mysterious healing potion in a crystal vial. The liquid glows with a soft blue light.", canTake: true, canUse: true, value: 50, type: "consumable", healAmount: 50 },
+            "golden idol": { name: "golden idol", description: "A beautiful golden idol depicting an ancient island deity. It's incredibly valuable.", canTake: true, canUse: false, value: 100, type: "treasure" },
+            "ancient treasure": { name: "ancient treasure", description: "The legendary treasure of the forgotten island! A chest filled with gold, gems, and ancient artifacts.", canTake: true, canUse: false, value: 500, type: "treasure" },
+            "treasure map": { name: "treasure map", description: "A detailed map showing the location of the hidden dock and the route back to civilization.", canTake: true, canUse: true, value: 100, type: "tool" },
+            "emergency supplies": { name: "emergency supplies", description: "Emergency supplies including food and fresh water for the journey home.", canTake: true, canUse: true, value: 75, type: "consumable", healAmount: 75 }
+        };
+
+        // Game Functions
+        function displayOutput(text, className = '') {
+            const output = document.getElementById('gameOutput');
+            const div = document.createElement('div');
+            div.className = className;
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            output.appendChild(div);
+            
+            // Auto-scroll to bottom
+            const screen = document.getElementById('gameScreen');
+            screen.scrollTop = screen.scrollHeight;
+        }
+
+        function clearScreen() {
+            document.getElementById('gameOutput').innerHTML = '';
+        }
+
+        function updateStats() {
+            document.getElementById('healthStat').textContent = `${gameState.playerHealth}/${gameState.maxHealth}`;
+            document.getElementById('scoreStat').textContent = gameState.playerScore;
+            
+            if (gameState.gameStarted) {
+                document.getElementById('locationStat').textContent = rooms[gameState.currentRoom].name;
+            }
+        }
+
+        function displayRoom() {
+            const room = rooms[gameState.currentRoom];
+            
+            displayOutput(`=== ${room.name} ===`, 'room-title');
+            
+            const description = !room.visited && room.longDescription ? room.longDescription : room.description;
+            displayOutput(description, 'room-description');
+            
+            // Display items
+            if (room.items.length > 0) {
+                displayOutput('\nYou can see:', 'items-list');
+                room.items.forEach(itemName => {
+                    const item = items[itemName];
+                    if (item) {
+                        const canTakeText = item.canTake ? ' (you can take this)' : '';
+                        displayOutput(`  ${item.name}${canTakeText}`, 'items-list');
+                    }
+                });
+            }
+            
+            // Display exits
+            const exitList = Object.keys(room.exits);
+            if (exitList.length > 0) {
+                displayOutput(`\nExits: ${exitList.join(', ')}`, 'exits-list');
+            } else {
+                displayOutput('\nThere are no obvious exits.', 'exits-list');
+            }
+            
+            room.visited = true;
+            updateStats();
+        }
+
+        function processCommand() {
+            const input = document.getElementById('gameInput');
+            const command = input.value.trim().toLowerCase();
+            input.value = '';
+            
+            if (!command) return;
+            
+            displayOutput(`> ${command}`, 'success-message');
+            
+            const words = command.split(' ');
+            const action = words[0];
+            const target = words.slice(1).join(' ');
+            
+            // Handle commands
+            if (command === 'start' && !gameState.gameStarted) {
+                startGame();
+            } else if (action === 'help' || action === 'h') {
+                showHelp();
+            } else if (!gameState.gameStarted) {
+                displayOutput('Please type "start" to begin your adventure!', 'error-message');
+            } else {
+                handleGameCommand(action, target);
+            }
+            
+            checkWinCondition();
+        }
+
+        function startGame() {
+            gameState.gameStarted = true;
+            clearScreen();
+            
+            displayOutput('Enter your name, brave adventurer:', 'room-description');
+            
+            // For simplicity, we'll use a default name or prompt
+            gameState.playerName = prompt('Enter your name:') || 'Adventurer';
+            
+            displayOutput(`\nWelcome, ${gameState.playerName}!\n`, 'success-message');
+            displayRoom();
+        }
+
+        function handleGameCommand(action, target) {
+            switch (action) {
+                case 'go':
+                case 'move':
+                    if (target) handleMovement(target);
+                    else displayOutput('Go where? Try: go north, go south, go east, go west', 'error-message');
+                    break;
+                case 'north': case 'n': handleMovement('north'); break;
+                case 'south': case 's': handleMovement('south'); break;
+                case 'east': case 'e': handleMovement('east'); break;
+                case 'west': case 'w': handleMovement('west'); break;
+                case 'up': case 'u': handleMovement('up'); break;
+                case 'down': case 'd': handleMovement('down'); break;
+                case 'look': case 'l':
+                    if (target) handleExamine(target);
+                    else displayRoom();
+                    break;
+                case 'examine': case 'inspect':
+                    handleExamine(target);
+                    break;
+                case 'take': case 'get': case 'pick':
+                    handleTake(target);
+                    break;
+                case 'drop': case 'leave':
+                    handleDrop(target);
+                    break;
+                case 'use':
+                    handleUse(target);
+                    break;
+                case 'inventory': case 'i':
+                    showInventory();
+                    break;
+                case 'status': case 'health':
+                    showStatus();
+                    break;
+                case 'score':
+                    displayOutput(`Current Score: ${gameState.playerScore}`, 'status-info');
+                    break;
+                case 'quit': case 'exit': case 'q':
+                    if (confirm('Are you sure you want to quit?')) {
+                        location.reload();
+                    }
+                    break;
+                default:
+                    displayOutput("I don't understand that command. Type 'help' for available commands.", 'error-message');
+            }
+        }
+
+        function handleMovement(direction) {
+            const currentRoom = rooms[gameState.currentRoom];
+            const nextRoomId = currentRoom.exits[direction];
+            
+            if (nextRoomId === undefined) {
+                displayOutput("You can't go that way.", 'error-message');
+                return;
+            }
+            
+            const nextRoom = rooms[nextRoomId];
+            
+            // Check if room is locked
+            if (nextRoom.locked) {
+                const keyName = nextRoom.unlockKey;
+                if (!gameState.inventory.includes(keyName)) {
+                    displayOutput(`The way is locked. You need a ${keyName} to proceed.`, 'error-message');
+                    return;
+                } else {
+                    displayOutput(`You use the ${keyName} to unlock the way.`, 'success-message');
+                    nextRoom.locked = false;
+                }
+            }
+            
+            gameState.currentRoom = nextRoomId;
+            displayOutput(`\nYou move ${direction}.\n`, 'success-message');
+            displayRoom();
+        }
+
+        function handleExamine(target) {
+            if (!target) {
+                displayOutput('Examine what?', 'error-message');
+                return;
+            }
+            
+            // Check inventory
+            if (gameState.inventory.includes(target)) {
+                const item = items[target];
+                if (item) {
+                    displayOutput(`Looking at the ${item.name}:`, 'room-description');
+                    displayOutput(item.description, 'room-description');
+                    return;
+                }
+            }
+            
+            // Check current room
+            const currentRoom = rooms[gameState.currentRoom];
+            if (currentRoom.items.includes(target)) {
+                const item = items[target];
+                if (item) {
+                    displayOutput(`Looking at the ${item.name}:`, 'room-description');
+                    displayOutput(item.description, 'room-description');
+                    return;
+                }
+            }
+            
+            displayOutput(`You don't see a ${target} here.`, 'error-message');
+        }
+
+        function handleTake(itemName) {
+            if (!itemName) {
+                displayOutput('Take what?', 'error-message');
+                return;
+            }
+            
+            const currentRoom = rooms[gameState.currentRoom];
+            const itemIndex = currentRoom.items.indexOf(itemName);
+            
+            if (itemIndex === -1) {
+                displayOutput(`There's no ${itemName} here.`, 'error-message');
+                return;
+            }
+            
+            const item = items[itemName];
+            if (!item.canTake) {
+                displayOutput("You can't take that.", 'error-message');
+                return;
+            }
+            
+            if (gameState.inventory.length >= gameState.maxInventory) {
+                displayOutput('Your inventory is full!', 'error-message');
+                return;
+            }
+            
+            currentRoom.items.splice(itemIndex, 1);
+            gameState.inventory.push(itemName);
+            gameState.playerScore += 10;
+            
+            displayOutput(`You take the ${itemName}.`, 'success-message');
+            updateStats();
+        }
+
+        function handleDrop(itemName) {
+            if (!itemName) {
+                displayOutput('Drop what?', 'error-message');
+                return;
+            }
+            
+            const itemIndex = gameState.inventory.indexOf(itemName);
+            if (itemIndex === -1) {
+                displayOutput(`You don't have a ${itemName}.`, 'error-message');
+                return;
+            }
+            
+            gameState.inventory.splice(itemIndex, 1);
+            rooms[gameState.currentRoom].items.push(itemName);
+            
+            displayOutput(`You drop the ${itemName}.`, 'success-message');
+        }
+
+        function handleUse(itemName) {
+            if (!itemName) {
+                displayOutput('Use what?', 'error-message');
+                return;
+            }
+            
+            if (!gameState.inventory.includes(itemName)) {
+                displayOutput(`You don't have a ${itemName}.`, 'error-message');
+                return;
+            }
+            
+            const item = items[itemName];
+            if (!item.canUse) {
+                displayOutput("You can't use that.", 'error-message');
+                return;
+            }
+            
+            let result = `You use the ${itemName}.`;
+            
+            if (item.type === 'consumable') {
+                const oldHealth = gameState.playerHealth;
+                gameState.playerHealth = Math.min(gameState.playerHealth + item.healAmount, gameState.maxHealth);
+                result = `You consume the ${itemName} and feel refreshed! Health restored by ${gameState.playerHealth - oldHealth} points.`;
+                
+                // Remove consumable from inventory
+                const itemIndex = gameState.inventory.indexOf(itemName);
+                gameState.inventory.splice(itemIndex, 1);
+                gameState.playerScore += 5;
+            } else if (item.type === 'tool') {
+                result = `You use the ${itemName}. ${item.description}`;
+            }
+            
+            displayOutput(result, 'success-message');
+            updateStats();
+        }
+
+        function showInventory() {
+            if (gameState.inventory.length === 0) {
+                displayOutput('Your inventory is empty.', 'inventory-list');
+                return;
+            }
+            
+            displayOutput('\n=== INVENTORY ===', 'inventory-list');
+            displayOutput(`Carrying ${gameState.inventory.length}/${gameState.maxInventory} items:`, 'inventory-list');
+            
+            gameState.inventory.forEach(itemName => {
+                const item = items[itemName];
+                if (item) {
+                    const valueText = item.value > 0 ? ` (Value: ${item.value} gold)` : '';
+                    displayOutput(`  ${item.name}${valueText}`, 'inventory-list');
+                }
+            });
+            
+            displayOutput('================', 'inventory-list');
+        }
+
+        function showStatus() {
+            displayOutput('\n=== CHARACTER STATUS ===', 'status-info');
+            displayOutput(`Name: ${gameState.playerName}`, 'status-info');
+            
+            let healthStatus = '';
+            const healthPercent = gameState.playerHealth / gameState.maxHealth;
+            
+            if (healthPercent === 1) healthStatus = ' (Perfect health)';
+            else if (healthPercent >= 0.8) healthStatus = ' (Slightly injured)';
+            else if (healthPercent >= 0.6) healthStatus = ' (Moderately injured)';
+            else if (healthPercent >= 0.4) healthStatus = ' (Badly injured)';
+            else if (healthPercent >= 0.2) healthStatus = ' (Severely injured)';
+            else if (healthPercent > 0) healthStatus = ' (Critically injured)';
+            else healthStatus = ' (Unconscious)';
+            
+            displayOutput(`Health: ${gameState.playerHealth}/${gameState.maxHealth}${healthStatus}`, 'status-info');
+            displayOutput(`Inventory: ${gameState.inventory.length}/${gameState.maxInventory} items`, 'status-info');
+            displayOutput('=======================', 'status-info');
+        }
+
+        function showHelp() {
+            displayOutput('\n=== AVAILABLE COMMANDS ===', 'help-commands');
+            displayOutput('Movement:', 'help-commands');
+            displayOutput('  go <direction>, north, south, east, west, up, down', 'help-commands');
+            displayOutput('  (or use shortcuts: n, s, e, w, u, d)', 'help-commands');
+            displayOutput('\nInteraction:', 'help-commands');
+            displayOutput('  look - examine your surroundings', 'help-commands');
+            displayOutput('  examine <item> - look at something closely', 'help-commands');
+            displayOutput('  take <item> - pick up
